@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>IP Camera Dashboard</title>
+        <!-- <script src="webcam/lang.js"></script> -->
+        <script src="includes/jquery.js"></script>
+        <script src="includes/bootstrap.js"></script>
+        <!-- <script src="webcam/ipwebcam.js?5"></script> -->
+        <script src="dashboard.js"></script>
+
+        <link href="includes/bootstrap.css" rel="stylesheet"/>
+        <link href="index.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <template id="alert-template">
+            <div class="alert alert-danger alert-fixed alert-dismissible fade show my-4 w-50 float" role="alert" id="error-alert">
+                <span id="error-content"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </template>
+
+        <div class="row px-3" style="height:100vh;">
+            <!-- left column: controls -->
+            <div class="col-4">
+                <!-- Camera Address field -->
+                <div class="card my-3">
+                    <div class="card-header">Camera Address</div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">IP Addr:</span>
+                            </div>
+                            <input type="text" class="form-control" aria-label="IP Address" id="ip-addr">
+                            <div class="input-group-append">
+                                 <span class="input-group-text">Port:</span>
+                            </div>
+                            <input type="text" class="form-control" aria-label="Port" id="port">
+                            <div class="input-group-append">
+                                <button class="btn btn-danger" id="submit-addr">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera controls -->
+                <div class="card my-3">
+                    <div class="card-header">Camera Controls</div>
+                    <div class="card-body text-center">
+                        <h5>Camera Selection:</h5>
+                        <div id="camera-select" class="btn-group btn-group-toggle w-100 mb-4" data-toggle="buttons">
+                            <label class="btn btn-lg btn-primary">
+                              <input type="radio" name="camera_select" id="front_camera"> Front
+                            </label>
+                            <label class="btn btn-lg btn-primary">
+                              <input type="radio" name="camera_select" id="rear_camera"> Rear
+                            </label>
+                        </div>        
+
+                        <h5>Flash:</h5>
+                        <div id="flash-toggle" class="btn-group btn-group-toggle w-100 mb-4" data-toggle="buttons">
+                            <label class="btn btn-lg btn-success">
+                              <input type="radio" name="options" id="flash_on"> On
+                            </label>
+                            <label class="btn btn-lg btn-danger">
+                              <input type="radio" name="options" id="flash_off"> Off
+                            </label>
+                        </div>
+
+                        <h5>Night Vision Mode:</h5>
+                        <div id="nv-toggle" class="btn-group btn-group-toggle w-100 mb-4" data-toggle="buttons">
+                            <label class="btn btn-lg btn-success">
+                              <input type="radio" name="options" id="nv_on"> On
+                            </label>
+                            <label class="btn btn-lg btn-danger">
+                              <input type="radio" name="options" id="nv_off"> Off
+                            </label>
+                        </div>
+                        <label for="nv-gain">Night Vision Gain: <span id="nv-gain-current">1</span></label>
+                        <input class="custom-range w-100" id="nv-gain" type="range" min="1" max="240" value="1">
+                        <br>
+                        <label for="nv-exposure">Night Vision Exposure: <span id="nv-exposure-current">1</span></label>
+                        <input class="custom-range w-100" id="nv-exposure" type="range" min="1" max="20" value="1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- middle column: video feed -->
+            <div class="col-4" style="height:100vh;">
+                <div class="card my-3">
+                    <div class="card-header">Video Feed</div>
+                    <div class="card-body">
+                        <img src="" class="img-fluid" id="video-feed">
+                    </div>
+                </div>
+                    
+            </div>
+
+            <!-- right column: graphs/telemetry -->
+            <div class="col-4">
+                <div class="card my-3">
+                    <div class="card-header">Data</div>
+                    <div class="card-body">
+                        <!-- battery info -->
+                        <div class="row mb-3">
+                            <!-- battery percentage -->
+                            <div class="col-6">
+                                <div class="card">
+                                    <div class="card-header">Battery Charge</div>
+                                    <div class="card-body text-center">
+                                        <span class="data-point" id="batt_charge">&nbsp;</span>
+                                        <span>%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- battery temp -->
+                            <div class="col-6">
+                                <div class="card">
+                                    <div class="card-header">Battery Temp.</div>
+                                    <div class="card-body text-center">
+                                        <span class="data-point" id="batt_temp">&nbsp;</span>
+                                        <span>&#176;F</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- gyro data -->
+                        <div class="row">
+                            <!-- gyro x -->
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header">Gyro X</div>
+                                    <div class="card-body text-center">
+                                        <span class="h2" id="gyro_x">&nbsp;</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- gyro y -->
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header">Gyro Y</div>
+                                    <div class="card-body text-center">
+                                        <span class="h2" id="gyro_y">&nbsp;</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- gyro z -->
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header">Gyro Z</div>
+                                    <div class="card-body text-center">
+                                        <span class="h2" id="gyro_z">&nbsp;</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</html>

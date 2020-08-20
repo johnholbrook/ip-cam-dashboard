@@ -33,9 +33,12 @@ function update_sensor_data(now=-1){
 
         // Battery Temperature (C)
         if (data.battery_temp.data.length) {
-            document.querySelector('#batt_temp').innerHTML = data.battery_temp.data.pop()[1][0];
-            // document.querySelector('#batt_temp').innerHTML = Math.round((batt_temp*1.8) + 32);
-            // document.querySelector('#batt_temp').title = `${Math.round((batt_temp*1.8) + 32)}&deg;F`
+            let batt_temp = data.battery_temp.data.pop()[1][0];
+            document.querySelector('#batt_temp').innerHTML = batt_temp;
+            $("#batt_temp").tooltip({
+                html: true,
+                title: `${Math.round((batt_temp*1.8) + 32)}&deg;F`
+            });
         }
 
         // Rotation Vector (Quaternion)
@@ -122,7 +125,6 @@ function get_camera_status(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    $('#batt_temp').tooltip();
 
     //set camera IP and port
     document.querySelector("#submit-addr").onclick = () => {

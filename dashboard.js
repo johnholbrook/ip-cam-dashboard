@@ -5,6 +5,13 @@ var root = "";
 
 var sensor_update = null;
 
+var pitch = 0;
+var pitch_0 = 0;
+var roll = 0;
+var roll_0 = 0;
+var yaw = 0;
+var yaw_0 = 0;
+
 function display_error(param, value){
     `<div class="alert alert-danger alert-fixed alert-dismissible fade show my-4 w-50 float" role="alert" id="error-alert">
         <strong>ERROR:</strong> Can't set ${param} to ${value}.
@@ -50,21 +57,54 @@ function update_sensor_data(now=-1){
             let gyro_z = rv[1][2];
             let gyro_w = rv[1][3];
 
-            let pitch = Math.atan2(-2 * (gyro_w * gyro_x + gyro_y * gyro_z),
+            // let pitch = Math.atan2(-2 * (gyro_w * gyro_x + gyro_y * gyro_z),
+            //     1 - 2 * (gyro_x * gyro_x + gyro_y * gyro_y)) + Math.PI;
+            // let roll = Math.asin(2 * (gyro_w * gyro_y - gyro_z * gyro_x));
+            // if (pitch > Math.PI) {
+            //     roll = Math.PI - roll;
+            // }
+            // let yaw = Math.atan2(-2 * (gyro_w * gyro_z + gyro_x * gyro_y),
+            //     1 - 2 * (gyro_y * gyro_y + gyro_z * gyro_z));
+
+            pitch = Math.atan2(-2 * (gyro_w * gyro_x + gyro_y * gyro_z),
                 1 - 2 * (gyro_x * gyro_x + gyro_y * gyro_y)) + Math.PI;
-            let roll = Math.asin(2 * (gyro_w * gyro_y - gyro_z * gyro_x));
+            roll = Math.asin(2 * (gyro_w * gyro_y - gyro_z * gyro_x));
             if (pitch > Math.PI) {
                 roll = Math.PI - roll;
             }
-            let yaw = Math.atan2(-2 * (gyro_w * gyro_z + gyro_x * gyro_y),
+            yaw = Math.atan2(-2 * (gyro_w * gyro_z + gyro_x * gyro_y),
                 1 - 2 * (gyro_y * gyro_y + gyro_z * gyro_z));
 
-            document.querySelector('#rot_roll').style.transform = `rotate(${roll}rad)`;
-            document.querySelector('#rot_roll+span').innerHTML = `${(roll/Math.PI*180).toFixed(2)}&deg;`;
-            document.querySelector('#rot_pitch').style.transform = `rotate(${pitch}rad)`;
-            document.querySelector('#rot_pitch+span').innerHTML = `${(90-pitch/Math.PI*180).toFixed(2)}&deg;`;
-            document.querySelector('#rot_yaw').style.transform = `rotate(${yaw}rad)`;
-            document.querySelector('#rot_yaw+span').innerHTML = `${(yaw/Math.PI*180).toFixed(2)}&deg;`;
+            let pitch_disp = pitch - pitch_0;
+            if (pitch_disp < -1* Math.PI){
+                pitch_disp += 2*Math.PI;
+            }
+            else if (pitch_disp > Math.PI){
+                pitch_disp -= 2*Math.PI;
+            }
+
+            let roll_disp = roll - roll_0;
+            if (roll_disp < -1* Math.PI){
+                roll_disp += 2*Math.PI;
+            }
+            else if (roll_disp > Math.PI){
+                roll_disp -= 2*Math.PI;
+            }
+
+            let yaw_disp = yaw - yaw_0;
+            if (yaw_disp < -1* Math.PI){
+                yaw_disp += 2*Math.PI;
+            }
+            else if (yaw_disp > Math.PI){
+                yaw_disp -= 2*Math.PI;
+            }
+
+            document.querySelector('#rot_roll').style.transform = `rotate(${roll_disp}rad)`;
+            document.querySelector('#rot_roll+div').innerHTML = `${(roll_disp/Math.PI*180).toFixed(2)}&deg;`;
+            document.querySelector('#rot_pitch').style.transform = `rotate(${pitch_disp}rad)`;
+            document.querySelector('#rot_pitch+div').innerHTML = `${(90-pitch_disp/Math.PI*180).toFixed(2)}&deg;`;
+            document.querySelector('#rot_yaw').style.transform = `rotate(${yaw_disp}rad)`;
+            document.querySelector('#rot_yaw+div').innerHTML = `${(yaw_disp/Math.PI*180).toFixed(2)}&deg;`;
         }
 
         // Compute the most recent time stamp
@@ -240,6 +280,26 @@ document.addEventListener('DOMContentLoaded', () => {
         let snapshot_area = document.querySelector('#snapshot-area');
         snapshot_area.insertBefore(new_snapshot, snapshot_area.childNodes[0]);
     };
+
+    //set & reset 0 point for roll, pitch, yaw
+    $('#set_zero_pitch').click(function(){
+        pitch_0 = (-1*Math.PI/2)+pitch;
+    });
+    $('#reset_pitch').click(function(){
+        pitch_0 = 0;
+    })
+    $('#set_zero_roll').click(function(){
+        roll_0 = roll;
+    });
+    $('#reset_roll').click(function(){
+        roll_0 = 0;
+    })
+    $('#set_zero_yaw').click(function(){
+        yaw_0 = yaw;
+    });
+    $('#reset_yaw').click(function(){
+        yaw_0 = 0;
+    })
 
 });
 

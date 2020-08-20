@@ -76,6 +76,51 @@ function update_sensor_data(now=-1){
     });
 }
 
+//get information about the current status of the camera and update the
+//controls on the dashboard accordingly
+function get_camera_status(){
+    $.getJSON(`${root}/status.json`, (data) => {
+        if (data.curvals.ffc == "on"){
+            //front-facing camera shown
+            $("#front_camera").parent().addClass("active");
+            $("#rear_camera").parent().removeClass("active");
+        }
+        else{
+            // rear-facing camera shown
+            $("#rear_camera").parent().addClass("active");
+            $("#front_camera").parent().removeClass("active");
+        }
+
+        if (data.curvals.torch == "on"){
+            //flash is on
+            $("#flash_on").parent().addClass("active");
+            $("#flash_off").parent().removeClass("active");
+        }
+        else{
+            // flash is off
+            $("#flash_off").parent().addClass("active");
+            $("#flash_on").parent().removeClass("active");
+        }
+
+        if (data.curvals.night_vision == "on"){
+            //NV is on
+            $("#nv_on").parent().addClass("active");
+            $("#nv_off").parent().removeClass("active");
+        }
+        else{
+            //NV is off
+            $("#nv_off").parent().addClass("active");
+            $("#nv_on").parent().removeClass("active");
+        }
+
+        //set NV Gain and Exposure
+        $("#nv-gain").val(data.curvals.night_vision_gain);
+        $("#nv-gain-current").html(Number(data.curvals.night_vision_gain).toFixed(0));
+        $("#nv-exposure").val(data.curvals.night_vision_average);
+        $("#nv-exposure-current").html(data.curvals.night_vision_average);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     $('#batt_temp').tooltip();
 
@@ -85,6 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
         port = document.querySelector("#port").value;
         root = `http://${ip}:${port}/`;
         document.querySelector("#video-feed").src = root + "video";
+
+        //update status of controls
+        get_camera_status();
 
         //start live-updating sensor data
         update_sensor_data();

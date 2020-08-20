@@ -3,7 +3,7 @@ body{
 }
 
 .data-point{
-    font-size: 5em;
+    font-size: 4vw;
 }
 
 .snapshot-close{
@@ -11,4 +11,11 @@ body{
     left: 0.5em;
     top: -0.1em;
     font-size: 3em;
+}
+
+.angle_gauge {
+    display: block;
+    margin: auto;
+    width: 100%;
+    max-width: 100px;
 }

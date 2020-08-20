@@ -23,26 +23,56 @@ function display_error(param, value){
     }, 5000);
 }
 
-function update_sensor_data(){
-    $.getJSON(root+"sensors.json", (data) => {
-        //extract relevent JSON data
-        let batt_charge = data.battery_level.data[0][1][0];
-        let batt_temp = data.battery_temp.data[0][1][0];
-        let gyro = data.gyro.data[0][1];
-        let gyro_x = gyro[0];
-        let gyro_y = gyro[1];
-        let gyro_z = gyro[2];
+function update_sensor_data(now=-1){
+    $.getJSON(`${root}/sensors.json?from=${now}`, (data) => {
 
-        // write data to page
-        document.querySelector("#batt_charge").innerHTML = batt_charge;
-        // document.querySelector("#batt_temp").innerHTML = Math.round((batt_temp*1.8) + 32);
-        document.querySelector("#batt_temp").innerHTML = batt_temp;
-        document.querySelector("#batt_temp").title = `${Math.round((batt_temp*1.8) + 32)}&#176;F`
-        document.querySelector("#gyro_x").innerHTML = gyro_x.toFixed(3);
-        document.querySelector("#gyro_y").innerHTML = gyro_y.toFixed(3);
-        document.querySelector("#gyro_z").innerHTML = gyro_z.toFixed(3);
+        // Battery Level (%)
+        if (data.battery_level.data.length) {
+            document.querySelector('#batt_charge').innerHTML = data.battery_level.data.pop()[1][0];
+        }
 
-        // console.log(`Battery ${batt_level}%, ${batt_temp}C; Gyro ${gyro_x} X; ${gyro_y} Y; ${gyro_z} Z`);
+        // Battery Temperature (C)
+        if (data.battery_temp.data.length) {
+            document.querySelector('#batt_temp').innerHTML = data.battery_temp.data.pop()[1][0];
+            // document.querySelector('#batt_temp').innerHTML = Math.round((batt_temp*1.8) + 32);
+            // document.querySelector('#batt_temp').title = `${Math.round((batt_temp*1.8) + 32)}&deg;F`
+        }
+
+        // Rotation Vector (Quaternion)
+        if (data.rot_vector.data.length) {
+            let rv = data.rot_vector.data.pop();
+
+            let gyro_x = rv[1][0];
+            let gyro_y = rv[1][1];
+            let gyro_z = rv[1][2];
+            let gyro_w = rv[1][3];
+
+            let pitch = Math.atan2(-2 * (gyro_w * gyro_x + gyro_y * gyro_z),
+                1 - 2 * (gyro_x * gyro_x + gyro_y * gyro_y)) + Math.PI;
+            let roll = Math.asin(2 * (gyro_w * gyro_y - gyro_z * gyro_x));
+            if (pitch > Math.PI) {
+                roll = Math.PI - roll;
+            }
+            let yaw = Math.atan2(-2 * (gyro_w * gyro_z + gyro_x * gyro_y),
+                1 - 2 * (gyro_y * gyro_y + gyro_z * gyro_z));
+
+            document.querySelector('#rot_roll').style.transform = `rotate(${roll}rad)`;
+            document.querySelector('#rot_roll+span').innerHTML = `${(roll/Math.PI*180).toFixed(2)}&deg;`;
+            document.querySelector('#rot_pitch').style.transform = `rotate(${pitch}rad)`;
+            document.querySelector('#rot_pitch+span').innerHTML = `${(90-pitch/Math.PI*180).toFixed(2)}&deg;`;
+            document.querySelector('#rot_yaw').style.transform = `rotate(${yaw}rad)`;
+            document.querySelector('#rot_yaw+span').innerHTML = `${(yaw/Math.PI*180).toFixed(2)}&deg;`;
+        }
+
+        // Compute the most recent time stamp
+        $.each(data, (type, stream) => {
+            $.each(stream.data, (i, cell) => {
+                now = Math.max(now, cell[0]);
+            });
+        });
+
+        // Schedule receipt of the next batch of sensor data
+        setTimeout(() => update_sensor_data(now), 100);
     });
 }
 
@@ -57,10 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector("#video-feed").src = root + "video";
 
         //start live-updating sensor data
-        clearInterval(sensor_update);
-        sensor_update = setInterval(() => {
             update_sensor_data();
-        }, 200);
     };
 
     //choose front or rear-facing camera

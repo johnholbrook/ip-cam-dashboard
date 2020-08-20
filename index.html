@@ -91,9 +91,9 @@
                     <div class="card-header">Data</div>
                     <div class="card-body">
                         <!-- battery info -->
-                        <div class="row mb-3">
+                        <div class="row">
                             <!-- battery percentage -->
-                            <div class="col-6">
+                            <div class="mb-3 px-2 col-xl-6">
                                 <div class="card">
                                     <div class="card-header">Battery Charge</div>
                                     <div class="card-body text-center">
@@ -103,7 +103,7 @@
                                 </div>
                             </div>
                             <!-- battery temp -->
-                            <div class="col-6">
+                            <div class="mb-3 px-2 col-xl-6">
                                 <div class="card">
                                     <div class="card-header">Battery Temp.</div>
                                     <div class="card-body text-center">
@@ -114,34 +114,37 @@
                             </div>
                         </div>
 
-                        <!-- gyro data -->
+                        <!-- rotation vector -->
                         <div class="row">
-                            <!-- gyro x -->
-                            <div class="col-4">
+                            <!-- roll -->
+                            <div class="mb-3 px-2 col-12 col-xl-4">
                                 <div class="card">
-                                    <div class="card-header">Gyro X</div>
+                                    <div class="card-header">Roll</div>
                                     <div class="card-body text-center">
-                                        <span class="h2" id="gyro_x">&nbsp;</span>
+                                        <img class="angle_gauge" id="rot_roll" src="img/angle_gauge.svg">
+                                        <span>0&deg;</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- gyro y -->
-                            <div class="col-4">
+                            <!-- pitch -->
+                            <div class="mb-3 px-2 col-12 col-xl-4">
                                 <div class="card">
-                                    <div class="card-header">Gyro Y</div>
+                                    <div class="card-header">Pitch</div>
                                     <div class="card-body text-center">
-                                        <span class="h2" id="gyro_y">&nbsp;</span>
+                                        <img class="angle_gauge" id="rot_pitch" src="img/angle_gauge.svg">
+                                        <span>0&deg;</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- gyro z -->
-                            <div class="col-4">
+                            <!-- yaw -->
+                            <div class="mb-3 px-2 col-12 col-xl-4">
                                 <div class="card">
-                                    <div class="card-header">Gyro Z</div>
+                                    <div class="card-header">Yaw</div>
                                     <div class="card-body text-center">
-                                        <span class="h2" id="gyro_z">&nbsp;</span>
+                                        <img class="angle_gauge" id="rot_yaw" src="img/angle_gauge.svg">
+                                        <span>0&deg;</span>
                                     </div>
                                 </div>
                             </div>

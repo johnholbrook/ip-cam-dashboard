@@ -2,28 +2,19 @@
 <html>
     <head>
         <title>IP Camera Dashboard</title>
-        <!-- <script src="webcam/lang.js"></script> -->
         <script src="includes/jquery.js"></script>
-        <script src="includes/bootstrap.js"></script>
-        <!-- <script src="webcam/ipwebcam.js?5"></script> -->
+        <!-- <script src="includes/popper.js"></script> -->
+        <script src="includes/bootstrap.bundle.min.js"></script>
+        <script src="includes/jimp.js"></script>
         <script src="dashboard.js"></script>
 
         <link href="includes/bootstrap.css" rel="stylesheet"/>
         <link href="index.css" rel="stylesheet"/>
     </head>
     <body>
-        <template id="alert-template">
-            <div class="alert alert-danger alert-fixed alert-dismissible fade show my-4 w-50 float" role="alert" id="error-alert">
-                <span id="error-content"></span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </template>
-
         <div class="row px-3" style="height:100vh;">
-            <!-- left column: controls -->
-            <div class="col-4">
+            <!-- left column: controls & data -->
+            <div class="col-4 d-flex flex-column">
                 <!-- Camera Address field -->
                 <div class="card my-3">
                     <div class="card-header">Camera Address</div>
@@ -48,58 +39,55 @@
                 <div class="card my-3">
                     <div class="card-header">Camera Controls</div>
                     <div class="card-body text-center">
-                        <h5>Camera Selection:</h5>
-                        <div id="camera-select" class="btn-group btn-group-toggle w-100 mb-4" data-toggle="buttons">
-                            <label class="btn btn-lg btn-primary">
-                              <input type="radio" name="camera_select" id="front_camera"> Front
-                            </label>
-                            <label class="btn btn-lg btn-primary">
-                              <input type="radio" name="camera_select" id="rear_camera"> Rear
-                            </label>
-                        </div>        
-
-                        <h5>Flash:</h5>
-                        <div id="flash-toggle" class="btn-group btn-group-toggle w-100 mb-4" data-toggle="buttons">
-                            <label class="btn btn-lg btn-success">
-                              <input type="radio" name="options" id="flash_on"> On
-                            </label>
-                            <label class="btn btn-lg btn-danger">
-                              <input type="radio" name="options" id="flash_off"> Off
-                            </label>
+                        <div class="row">
+                            <div class="col-6">
+                                <h5>Camera Selection:</h5>
+                                <div id="camera-select" class="btn-group btn-group-toggle w-100 mb-4" data-toggle="buttons">
+                                    <label class="btn btn-lg btn-primary">
+                                        <input type="radio" name="camera_select" id="front_camera"> Front
+                                    </label>
+                                    <label class="btn btn-lg btn-primary">
+                                      <input type="radio" name="camera_select" id="rear_camera"> Rear
+                                    </label>
+                                </div>  
+                            </div>
+                            <div class="col-6">
+                                <h5>Flash:</h5>
+                                <div id="flash-toggle" class="btn-group btn-group-toggle w-100 mb-4" data-toggle="buttons">
+                                    <label class="btn btn-lg btn-success">
+                                    <input type="radio" name="options" id="flash_on"> On
+                                    </label>
+                                    <label class="btn btn-lg btn-danger">
+                                    <input type="radio" name="options" id="flash_off"> Off
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
-                        <h5>Night Vision Mode:</h5>
-                        <div id="nv-toggle" class="btn-group btn-group-toggle w-100 mb-4" data-toggle="buttons">
-                            <label class="btn btn-lg btn-success">
-                              <input type="radio" name="options" id="nv_on"> On
-                            </label>
-                            <label class="btn btn-lg btn-danger">
-                              <input type="radio" name="options" id="nv_off"> Off
-                            </label>
+                        <div class="row">
+                            <div class="col-6 my-auto">
+                                <h5>Night Vision Mode:</h5>
+                                <div id="nv-toggle" class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                                    <label class="btn btn-lg btn-success">
+                                        <input type="radio" name="options" id="nv_on"> On
+                                    </label>
+                                    <label class="btn btn-lg btn-danger">
+                                        <input type="radio" name="options" id="nv_off"> Off
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label for="nv-gain">Night Vision Gain: <span id="nv-gain-current">1</span></label>
+                                <input class="custom-range w-100" id="nv-gain" type="range" min="1" max="240" value="1">
+                                <br>
+                                <label for="nv-exposure">Night Vision Exposure: <span id="nv-exposure-current">1</span></label>
+                                <input class="custom-range w-100" id="nv-exposure" type="range" min="1" max="20" value="1">
+                            </div>
                         </div>
-                        <label for="nv-gain">Night Vision Gain: <span id="nv-gain-current">1</span></label>
-                        <input class="custom-range w-100" id="nv-gain" type="range" min="1" max="240" value="1">
-                        <br>
-                        <label for="nv-exposure">Night Vision Exposure: <span id="nv-exposure-current">1</span></label>
-                        <input class="custom-range w-100" id="nv-exposure" type="range" min="1" max="20" value="1">
                     </div>
                 </div>
-            </div>
 
-            <!-- middle column: video feed -->
-            <div class="col-4" style="height:100vh;">
-                <div class="card my-3">
-                    <div class="card-header">Video Feed</div>
-                    <div class="card-body">
-                        <img src="" class="img-fluid" id="video-feed">
-                    </div>
-                </div>
-                    
-            </div>
-
-            <!-- right column: graphs/telemetry -->
-            <div class="col-4">
-                <div class="card my-3">
+                <div class="card my-3 flex-grow-1">
                     <div class="card-header">Data</div>
                     <div class="card-body">
                         <!-- battery info -->
@@ -119,8 +107,8 @@
                                 <div class="card">
                                     <div class="card-header">Battery Temp.</div>
                                     <div class="card-body text-center">
-                                        <span class="data-point" id="batt_temp">&nbsp;</span>
-                                        <span>&#176;F</span>
+                                        <span class="data-point" id="batt_temp" data-toggle="tooltip" title="">&nbsp;</span>
+                                        <span>&#176;C</span>
                                     </div>
                                 </div>
                             </div>
@@ -158,6 +146,35 @@
                                 </div>
                             </div>
                             
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- middle column: video feed -->
+            <div class="col-4 d-flex flex-column">
+                <div class="card my-3 flex-grow-1">
+                    <div class="card-header">Video Feed</div>
+                    <div class="card-body">
+                        <img src="" class="img-fluid mx-auto d-block" id="video-feed" style="max-width:98%">
+                    </div>
+                </div>
+                    
+            </div>
+
+            <!-- right column: graphs/telemetry -->
+            <div class="col-4 d-flex flex-column">
+                <div class="card my-3 flex-grow-1">
+                    <div class="card-header">Snapshots</div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="btn btn-lg btn-primary w-100 mb-3" id="take-snapshot">Take Snapshot</div>
+                        <div class="flex-grow-1" style="overflow-y:auto; overflow-x: hidden;">
+                            <!-- Snapshots go here! -->
+                             <!-- <div class="d-flex flex-row">
+                                <img src="test_snapshot_vertical.jpg" alt="" class="d-flex justify-content-center snapshot-img">
+                                <img src="test_snapshot_vertical.jpg" alt="" class="d-flex justify-content-center snapshot-img">
+                             </div> -->
+                             <div class="row" id="snapshot-area"></div>
                         </div>
                     </div>
                 </div>

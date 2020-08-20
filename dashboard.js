@@ -35,7 +35,9 @@ function update_sensor_data(){
 
         // write data to page
         document.querySelector("#batt_charge").innerHTML = batt_charge;
-        document.querySelector("#batt_temp").innerHTML = Math.round((batt_temp*1.8) + 32);
+        // document.querySelector("#batt_temp").innerHTML = Math.round((batt_temp*1.8) + 32);
+        document.querySelector("#batt_temp").innerHTML = batt_temp;
+        document.querySelector("#batt_temp").title = `${Math.round((batt_temp*1.8) + 32)}&#176;F`
         document.querySelector("#gyro_x").innerHTML = gyro_x.toFixed(3);
         document.querySelector("#gyro_y").innerHTML = gyro_y.toFixed(3);
         document.querySelector("#gyro_z").innerHTML = gyro_z.toFixed(3);
@@ -45,6 +47,8 @@ function update_sensor_data(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    $('#batt_temp').tooltip();
+
     //set camera IP and port
     document.querySelector("#submit-addr").onclick = () => {
         ip = document.querySelector("#ip-addr").value;
@@ -119,6 +123,64 @@ document.addEventListener('DOMContentLoaded', () => {
         let val = document.querySelector("#nv-exposure").value;
         document.querySelector("#nv-exposure-current").innerHTML = val;
         $.ajax(root+'/settings/night_vision_average?set='+val);
+    };
+
+    //take snapshot
+    document.querySelector("#take-snapshot").onclick = () => {
+        //Get an image from the camera
+        Jimp.read(root+'photo.jpg').then(img => {
+            //Resize the image to 1024 px wide
+            img.resize(1024, Jimp.AUTO);
+
+            //Rotate the image 90 degrees
+            img.rotate(90);
+
+            //Generate data URI for this snapshot
+            // img.getBase64Async(img.getMIME()).then(uri => {
+            img.getBase64Async(Jimp.MIME_PNG).then(uri => {
+                //generate HTML source
+                let new_snapshot_source = `
+                <div class="col-6 mb-4">
+                    <button type="button" class="close text-danger d-none snapshot-close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <img src="${uri}" class="img-fluid">
+                </div>
+                `;
+
+                //convert HTML source into a DOM object
+                let template = document.createElement("template");
+                template.innerHTML = new_snapshot_source;
+                let new_snapshot = template.content.firstElementChild;
+
+                //show close button only on mouseover
+                new_snapshot.onmouseover = () => {
+                    new_snapshot.querySelector(".snapshot-close").classList.toggle("d-none", false);
+                };
+                new_snapshot.onmouseout = () => {
+                    new_snapshot.querySelector(".snapshot-close").classList.toggle("d-none", true);
+                };
+
+                //delete snapshot when close button clicked
+                new_snapshot.querySelector(".snapshot-close").onclick = () => {
+                    new_snapshot.remove();
+                };
+
+                //add new snapshot to document
+                let snapshot_area = document.querySelector("#snapshot-area");
+                snapshot_area.insertBefore(new_snapshot, snapshot_area.childNodes[0]);
+            });
+        }).catch(err => {
+            console.log(err);
+        });
+        
+        // //TODO: Do the image manipulation in a separate thread
+        // Jimp.read("test_snapshot.jpg").then(img => {
+        //     img.resize(1024, Jimp.AUTO);
+        //     img.rotate(90);
+        //     // console.log(`${img.getWidth()} x ${img.getHeight()}`);
+        //     img.getBase64Async(img.getMIME()).then(uri => {console.log(uri);});
+        // }).catch(err =>{});
     };
 
 });

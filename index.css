@@ -2,16 +2,13 @@ body{
     background-color: #333333;
 }
 
-.alert-fixed {
-    position:fixed; 
-    top: 0px; 
-    left: 50%; 
-    transform: translateX(-50%);
-    width: 100%;
-    z-index:9999; 
-    border-radius:5px
-}
-
 .data-point{
     font-size: 5em;
+}
+
+.snapshot-close{
+    position: absolute;
+    left: 0.5em;
+    top: -0.1em;
+    font-size: 3em;
 }
